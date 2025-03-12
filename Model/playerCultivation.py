@@ -1,46 +1,55 @@
-from player import PlayerStats
 import pyinputplus as pyip
+import random
 
-class PlayerCultivation:
+class PlayerCultivationQiRefining:
     def __init__(self):
-        self.cultivationexp = 0
-        self.stage = 0
-        self.multiplier = {'Stage1': 1, 'Stage2': 2, 'Stage3': 3, 'Stage4': 4, 'Stage5': 5}
-
-    def multipliers(self):
-        if self.cultivationexp <= 100:
-            self.stage = 1
-        elif self.cultivationexp <= 500 > 100:
-            self.stage = 2
-        elif self.cultivationexp <= 1500 > 500:
-            self.stage = 3
-        elif self.cultivationexp <= 3000 > 1500:
-            self.stage = 4
-        elif self.cultivationexp < 5000 > 3000:
-            self.stage = 5
+        # Initialisere variablerne
+        self.cultivationexp: int = 0
+        self.currentCultivationexp: int = 0
+        self.stage: int = 1
 
     def cultivate(self, n: int):
-        for self.cultivationexp in range(n):
-            self.cultivationexp += 1
-            self.cultivationexp *= self.stage
-            self.multipliers()
-        return self.cultivationexp
+        for _ in range(n):
+            self.cultivationexp += 1 # cultivationexp værdi er 0, så 1 eksister, så tallet kan gå rigtig op hvert iteration
+        self.checkMultiplier()
+        return self.currentCultivationexp
     
-    def qiRefiningBreakthrough(self):
-        if cultivation >= 100:
-            print('Breakthrough')
-        else:
-            print('No')
-
-
-    def breakthroughRealm(self):
-        pass
+    def checkMultiplier(self):
+        match self.stage:
+            case 1:
+                self.currentCultivationexp = self.cultivationexp * 1
+            case 2:
+                self.currentCultivationexp = self.cultivationexp * 2
+            case 3:
+                self.currentCultivationexp = self.cultivationexp * 3
+            case 4:
+                self.currentCultivationexp = self.cultivationexp * 4
+            case 5:
+                self.currentCultivationexp = self.cultivationexp * 5
+        return self.currentCultivationexp
+                
+    def breakthroughRealmStage(self):
+        requiredExp = {1: 100, 2: 500, 3: 1500, 4: 3000, 5: 5000}   
+        if self.cultivationexp >= requiredExp[self.stage]: # Henter værdi fra requiredexp dict
+            checkChance = random.randint(0, 1)
+            if checkChance == 1:
+                print('Breakthrough Sucess!')
+                self.stage += 1
+                self.cultivationexp = 0
+            else:
+                print('BreakThrough Failed!')
+                self.cultivationexp = 0
 
 if __name__ == '__main__':
-    player: PlayerCultivation = PlayerCultivation()
+    player = PlayerCultivationQiRefining()
+    requiredExp = {1: 100, 2: 500, 3: 1500, 4: 3000, 5: 5000}   
 
-    cultivation: int = player.cultivate(pyip.inputInt('Enter how long you would like to cultivatet for (Year): '))
-    print(cultivation)
-
-"""   breakThrough = PlayerCultivaion.qiRefiningBreakthrough(cultivation)
-    print(breakThrough) """
+    while player.stage <= 5:
+        while player.cultivationexp < requiredExp[player.stage]:
+            cultivation: int = pyip.inputInt('Enter how long you would like to cultivatet for (Years): ')
+            print(f'Not enough cultivations exp to try and breakthrough to Stage: {player.stage + 1}')
+            player.cultivate(cultivation)
+            print(f'Current cultivators exp: {player.currentCultivationexp}')
+        
+        player.breakthroughRealmStage()
+        print(f'Players realm: {player.stage}')
