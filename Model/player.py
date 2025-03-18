@@ -1,10 +1,6 @@
 import pyinputplus as pyip
 from playerStats import PlayerStats
 from qiRefining import CultivationQiRefining
-from foundationBuilding import CultivationFoundationBuilding
-from coreFormation import CultivationCoreFormation
-from goldenCore import CultivationGoldenCore
-from nascentSoul import CultivationNascentSoul
 
 def main():
     """   beginningStats: int = PlayerStats(10, 5, 4, 3, 20, 18, 81)
@@ -29,6 +25,6 @@ def main():
         playerQiRefining.breakthroughRealmStage()
         print(f'Players realm: {playerQiRefining.stage}')
 
-        
+    
 if __name__ == '__main__':
     main()
