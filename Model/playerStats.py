@@ -1,15 +1,13 @@
 import pyinputplus as pyip
 
 class PlayerStats:
-    def __init__(self, health, strength, defense, speed, energy, currentLife, maxLife) -> int:
+    def __init__(self, health, strength, defense, speed, energy) -> int:
         self.health = health
         self.strength = strength
         self.defense = defense
         self.speed = speed
         self.energy = energy
-        self.currentLife = currentLife
-        self.maxLife = maxLife
-    
+        
     def __str__(self) -> str:
         return f'''¨
         Player Stats
@@ -18,8 +16,6 @@ class PlayerStats:
         Defense: {self.defense}
         Speed: {self.speed}
         Energy: {self.energy}
-        Current Life: {self.currentLife}
-        Max Life: {self.maxLife}
         '''
     
     def statsMultiplier(self, value: str) -> int:
@@ -47,19 +43,11 @@ class PlayerStats:
                     print('Multiplying energy...')
                     self.energy *= 2
                     return f'Updated energy: {self.energy}'
-                case 'currentlife':
-                    print('Multiplying current life...')
-                    self.currentLife *= 2
-                    return f'Updated current life: {self.currentLife}'
-                case 'maxlife':
-                    print('Multiplying max life...')
-                    self.maxLife *= 2
-                    return f'Updated max life: {self.maxLife}'
                 case _:
                     print('Invalid input. Please input a valid stats.')
 
 if __name__ == '__main__':
-    beginnerStats: int = PlayerStats(10, 5, 4, 3, 20, 18, 81)
+    beginnerStats: int = PlayerStats(10, 5, 4, 3, 20)
     print(beginnerStats)
 
     currentStats: str = beginnerStats.statsMultiplier(value=' ')

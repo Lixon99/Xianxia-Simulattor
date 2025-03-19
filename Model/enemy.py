@@ -41,5 +41,5 @@ enemy = EnemyAI('Qi Cultivator',
 
 playerAction = "defense"
 aiMove = enemy.chooseMove(playerAction)
-print(f'Qi Cultivator choose to use {aiMove["name"]}')
+print(f'{enemy.name} choose to use {aiMove["name"]}')
 print(f'It cost {aiMove["energyCost"]} energy')
