@@ -9,7 +9,7 @@ class PlayerStats:
         self.energy = energy
         
     def __str__(self) -> str:
-        return f'''¨
+        return f'''
         Player Stats
         Health: {self.health}
         Strength: {self.strength}

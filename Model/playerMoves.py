@@ -22,7 +22,7 @@ playerAllMoves = {
     "punch": {"name": "punch", "damage": 3, "energyCost": 1}, 
     "block": {"name": "block", "defenseBonus": 2, "energyCost": 1}, 
     "dodge": {"name": "dodge", "evasionChance": 0.5, "energyCost": 2}, 
-    "energyBlast": {"name": "energyBlast", "damage": 8, "energyCost": 3}, 
+    "energyblast": {"name": "energyblast", "damage": 8, "energyCost": 3}, 
     "heal": {"name": "heal", "healAmount": 5, "energyCost": 2}
 }
 
