@@ -2,18 +2,13 @@ import pygame
 from pygame.locals import *
 
 def main_page(screen):
-    backgroundPicture = pygame.image.load('Forside.png')
+    backgroundPicture = pygame.image.load('Forside.jpg')
     StartButton = pygame.image.load('StartButton.png')
-    
-    font = pygame.font.Font(None, 36)
-    text = font.render("Welcome to our Unnamed Cultivation game ", 1, (10, 10, 10))
-    textpos = text.get_rect(center=(640, 200))
 
-    StartButtonPos = StartButton.get_rect(center=(640, 400))
+    StartButtonPos = StartButton.get_rect(center=(640, 500))
     
     while True:
         screen.blit(backgroundPicture, (0, 0))
-        screen.blit(text, textpos)
         screen.blit(StartButton, StartButtonPos)
         pygame.display.flip()
 
@@ -26,6 +21,8 @@ def main_page(screen):
                     return "game"
     
 def game_page(screen):
+    gameBackground = pygame.image.load('')
+
     font = pygame.font.Font(None, 48)
     text = font.render("game page testning", True, (255, 255, 255))
     textpos = text.get_rect(center=(640, 360))
