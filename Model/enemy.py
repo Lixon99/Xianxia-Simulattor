@@ -1,5 +1,5 @@
-from player import PlayerStats
 import random
+from errorHandling import errorHandling
 
 class EnemyAI:
     def __init__(self, name, stats, strategies, allMoves):
@@ -8,6 +8,7 @@ class EnemyAI:
         self.strategies = strategies
         self.allMoves: list = allMoves
     
+    @errorHandling
     def chooseMove(self, playerAction, randomness=0.3): # Vælg tilfældig træk
         if random.random() < randomness: 
             return random.choice(list(self.allMoves.values()))

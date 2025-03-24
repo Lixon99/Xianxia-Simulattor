@@ -1,16 +1,17 @@
-import playerStats, playerMoves
-import enemy
+import playerStats, playerMoves, enemy
+from errorHandling import errorHandling
 
 # Defienre spilleren og eenemy stats
 player = playerStats.PlayerStats(10, 5, 4, 3, 20)
 print(player)
 
 enemy = enemy.EnemyAI('Qi Cultivator',
-                      stats={'Health': 10, 'Strength': 10, 'Defense': 10, 'Speed': 10, 'Energy': 10}, 
+                      stats={'Health': 10, 'Strength': 5, 'Defense': 4, 'Speed': 3, 'Energy': 20}, 
                       strategies=enemy.strategies, allMoves=enemy.allMoves )
 print(enemy)
 
 # Kamp function
+@errorHandling
 def fight(player, enemy):
     playerMove = playerMoves.PlayerMoves(playerMoves.playerAllMoves)
 

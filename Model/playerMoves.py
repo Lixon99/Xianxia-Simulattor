@@ -1,9 +1,11 @@
 import pyinputplus as pyip
+from errorHandling import errorHandling
 
 class PlayerMoves:
     def __init__(self, playerAllMoves):
         self.playerAllMoves: dict = playerAllMoves
     
+    @errorHandling
     def playerChooseMove(self):
         print('Choose a move:')
         for move in self.playerAllMoves:

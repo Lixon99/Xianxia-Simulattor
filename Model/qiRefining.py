@@ -1,5 +1,6 @@
 import pyinputplus as pyip
 import random
+from errorHandling import errorHandling
 
 class CultivationQiRefining:
     def __init__(self):
@@ -8,13 +9,15 @@ class CultivationQiRefining:
         self.currentCultivationexp: int = 0
         self.stage: int = 1
         self.requiredExp = {1: 100, 2: 500, 3: 1500, 4: 3000, 5: 5000}  
-
+    
+    @errorHandling
     def cultivate(self, n: int):
         for _ in range(n):
             self.cultivationexp += 1 # cultivationexp værdi er 0, så 1 eksister, så tallet kan gå rigtig op hvert iteration
         self.checkMultiplier()
         return self.currentCultivationexp
     
+    @errorHandling
     def checkMultiplier(self):
         match self.stage:
             case 1:
@@ -28,7 +31,8 @@ class CultivationQiRefining:
             case 5:
                 self.currentCultivationexp = self.cultivationexp * 1.6
         return self.currentCultivationexp
-                
+
+    @errorHandling       
     def breakthroughRealmStage(self):
         if self.cultivationexp >= self.requiredExp[self.stage]: # Henter værdi fra requiredexp dict
             checkChance = random.randint(0, 1)

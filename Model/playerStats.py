@@ -1,4 +1,5 @@
 import pyinputplus as pyip
+from errorHandling import errorHandling
 
 class PlayerStats:
     def __init__(self, health, strength, defense, speed, energy) -> int:
@@ -7,7 +8,8 @@ class PlayerStats:
         self.defense = defense
         self.speed = speed
         self.energy = energy
-        
+    
+    @errorHandling
     def __str__(self) -> str:
         return f'''
         Player Stats
@@ -18,6 +20,7 @@ class PlayerStats:
         Energy: {self.energy}
         '''
     
+    @errorHandling
     def statsMultiplier(self, value: str) -> int:
         while True:
             value = pyip.inputStr("Input a value from player's stats to multiply by: ")
