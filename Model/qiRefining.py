@@ -2,6 +2,7 @@ import pyinputplus as pyip
 import random
 from errorHandling import errorHandling
 
+# Denne fil håndterer cultivation og breakthrough for Qi Refining
 class CultivationQiRefining:
     def __init__(self):
         # Initialisere variablerne

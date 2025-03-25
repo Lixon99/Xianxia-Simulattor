@@ -1,6 +1,7 @@
 import random
 from errorHandling import errorHandling
 
+# Denne fil håndterer fjendens AI
 class EnemyAI:
     def __init__(self, name, stats, strategies, allMoves):
         self.stats: dict = stats

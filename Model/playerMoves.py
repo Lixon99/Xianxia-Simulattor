@@ -1,6 +1,7 @@
 import pyinputplus as pyip
 from errorHandling import errorHandling
 
+# Denne fil håndterer spillerens træk
 class PlayerMoves:
     def __init__(self, playerAllMoves):
         self.playerAllMoves: dict = playerAllMoves
@@ -8,7 +9,7 @@ class PlayerMoves:
     @errorHandling
     def playerChooseMove(self):
         print('Choose a move:')
-        for move in self.playerAllMoves:
+        for move in self.playerAllMoves: # Printer alle træk
             print(move.capitalize())
         playerMove = pyip.inputStr('Enter move: ')
         x = playerMove.lower()
@@ -20,6 +21,7 @@ class PlayerMoves:
     def __str__(self):
         return f'Player moves: {self.playerAllMoves}'
 
+# Dette er alle spillerens træk
 playerAllMoves = {
     "punch": {"name": "punch", "damage": 3, "energyCost": 1}, 
     "block": {"name": "block", "defenseBonus": 2, "energyCost": 1}, 

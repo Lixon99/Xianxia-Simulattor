@@ -1,6 +1,7 @@
 import pyinputplus as pyip
 from errorHandling import errorHandling
 
+# Denne fil håndterer spillerens stats
 class PlayerStats:
     def __init__(self, health, strength, defense, speed, energy) -> int:
         self.health = health
