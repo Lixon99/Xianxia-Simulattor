@@ -26,7 +26,6 @@ class EnemyAI:
 allMoves = {
     "punch": {"name": "punch", "damage": 3, "energyCost": 1}, 
     "block": {"name": "block", "defenseBonus": 2, "energyCost": 1}, 
-    "dodge": {"name": "dodge", "evasionChance": 0.5, "energyCost": 2}, 
     "energyblast": {"name": "energyblast", "damage": 8, "energyCost": 3}, 
     "heal": {"name": "heal", "healAmount": 5, "energyCost": 2}
 }
@@ -39,7 +38,7 @@ strategies = {
 if __name__ == '__main__':
     # Lave en fjend objekt
     enemy = EnemyAI('Qi Cultivator', 
-                    stats={'Health': 10, 'Strength': 10, 'Defense': 10, 'Speed': 10, 'Energy': 10}, 
+                    stats={'Health': 10, 'Strength': 10, 'Defense': 10, 'Energy': 10}, 
                     strategies=strategies, allMoves=allMoves )
 
     playerAction = "defense"

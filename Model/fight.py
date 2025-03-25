@@ -2,12 +2,14 @@ import playerStats, playerMoves, enemy
 from errorHandling import errorHandling
 
 # Defienre spilleren og eenemy stats
-player = playerStats.PlayerStats(10, 5, 4, 3, 20)
+player = playerStats.PlayerStats(10, 5, 4, 10)
 print(player)
 
 enemy = enemy.EnemyAI('Qi Cultivator',
-                      stats={'Health': 10, 'Strength': 5, 'Defense': 4, 'Speed': 3, 'Energy': 20}, 
-                      strategies=enemy.strategies, allMoves=enemy.allMoves )
+                      stats={'Health': 10, 'Strength': 5, 'Defense': 4, 'Energy': 10}, 
+                      strategies=enemy.strategies, 
+                      allMoves=enemy.allMoves 
+                      )
 print(enemy)
 
 # Kamp function
@@ -20,15 +22,20 @@ def fight(player, enemy):
         playerAction = playerMove.playerChooseMove()
         match playerAction:
             case 'punch':
+                print('---------------------- \nPlayer uses punch')
                 enemy.stats['Health'] -= player.strength
+                player.energy -= 1
             case 'block':
+                print('---------------------- \nPlayer uses block')
                 player.defense += 2
-            case 'dodge':
-                pass
             case 'energyblast':
-                enemy.stats['Health'] -= player.energy
+                print('---------------------- \nPlayer uses energyblast')
+                enemy.stats['Health'] -= player.strength + (0.5 * player.strength)
+                player.energy -= 5
             case 'heal':
+                print('---------------------- \nPlayer uses heal')
                 player.health += 5
+                player.energy -= 2
             case _:
                 print('Invalid move. Please try again.')
                 continue
@@ -41,15 +48,20 @@ def fight(player, enemy):
         aiMove = enemy.chooseMove(playerAction)
         match aiMove['name']:
             case 'punch':
+                print('---------------------- \nenemy uses punch')
                 player.health -= enemy.stats['Strength']
+                enemy.stats['Energy'] -= 1
             case 'block':
+                print('---------------------- \nenemy uses block')
                 enemy.stats['Defense'] += 2
-            case 'dodge':
-                pass
             case 'energyblast':
-                player.health -= enemy.stats['Energy']
+                print('---------------------- \nenemy uses energyblast')
+                enemy.stats['Health'] -= enemy.stats['Strength'] + (0.5 * enemy.stats['Strength'])
+                enemy.stats['Energy'] -= 5
             case 'heal':
+                print('---------------------- \nenemy uses heal')
                 enemy.stats['Health'] += 5
+                enemy.stats['Energy'] -= 2
             case _:
                 print('Invalid move. Please try again.')
                 continue
@@ -61,6 +73,5 @@ def fight(player, enemy):
         print(f'{player}')
         print(f'{enemy}')
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     fight(player, enemy)
-

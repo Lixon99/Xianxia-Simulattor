@@ -3,11 +3,10 @@ from errorHandling import errorHandling
 
 # Denne fil håndterer spillerens stats
 class PlayerStats:
-    def __init__(self, health, strength, defense, speed, energy) -> int:
+    def __init__(self, health, strength, defense, energy) -> int:
         self.health = health
         self.strength = strength
         self.defense = defense
-        self.speed = speed
         self.energy = energy
     
     @errorHandling
@@ -17,8 +16,7 @@ class PlayerStats:
         Health: {self.health}
         Strength: {self.strength}
         Defense: {self.defense}
-        Speed: {self.speed}
-        Energy: {self.energy}
+        Energy: {self.energy} \n
         '''
     
     @errorHandling
@@ -51,7 +49,7 @@ class PlayerStats:
                     print('Invalid input. Please input a valid stats.')
 
 if __name__ == '__main__':
-    beginnerStats: int = PlayerStats(10, 5, 4, 3, 20)
+    beginnerStats: int = PlayerStats(10, 5, 4, 10)
     print(beginnerStats)
 
     currentStats: str = beginnerStats.statsMultiplier(value=' ')
