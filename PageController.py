@@ -15,7 +15,7 @@ class Controller:
             if self.current_page == "main":
                 self.current_page = View.Pages.main_page(self.screen)
             elif self.current_page == "game":
-                print("Skiftet til game page (som der ikke er lavet endnu)")
+                print("Skiftet til game page")
                 self.current_page = View.Pages.game_page(self.screen)
 
             self.clock.tick(60)

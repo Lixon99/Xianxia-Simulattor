@@ -22,21 +22,24 @@ def main_page(screen):
     
 def game_page(screen):
     gameBackground = pygame.image.load('GamePage.png')
-    CultivateButton = pygame.image.load('CultivateButton.png')
     FightButton = pygame.image.load('FightButton.png')
+    CultivationIMG = pygame.image.load('meditateImg.png')
+    CultivateButton = pygame.image.load('CultivateButton.png')
 
-    CultivateButtonPos = CultivateButton.get_rect(center=(244, 592))
+    CultivationIMGPos = CultivationIMG.get_rect(center=(240, 340))
+    CultivateButtonPos = CultivateButton.get_rect(center=(244, 650))
     FightButtonPos = FightButton.get_rect(center=(640, 180))
     
     font = pygame.font.Font(None, 48)
-    text = font.render("game page", True, (255, 255, 255))
-    textpos = text.get_rect(center=(640, 360))
+    text = font.render("Game Page", True, (255, 255, 255))
+    textpos = text.get_rect(center=(640, 40))
 
     while True:
         screen.blit(gameBackground, (0, 0))
         screen.blit(text, textpos)
-        screen.blit(CultivateButton, CultivateButtonPos)
         screen.blit(FightButton, FightButtonPos)
+        screen.blit(CultivationIMG, CultivationIMGPos)
+        screen.blit(CultivateButton, CultivateButtonPos)
         pygame.display.flip()
 
         for event in pygame.event.get():
