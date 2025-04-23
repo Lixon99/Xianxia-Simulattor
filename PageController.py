@@ -1,5 +1,5 @@
 import pygame
-import View.Pages
+import Pages
 
 class Controller:
     def __init__(self):
@@ -13,13 +13,13 @@ class Controller:
 
         while True:
             if self.current_page == "main":
-                self.current_page = View.Pages.main_page(self.screen)
+                self.current_page = Pages.main_page(self.screen)
             elif self.current_page == "game":
-                self.current_page = View.Pages.game_page(self.screen)
+                self.current_page = Pages.game_page(self.screen)
             elif self.current_page == "fight":
-                self.current_page = View.Pages.fight_page(self.screen)
+                self.current_page = Pages.fight_page(self.screen)
             elif self.current_page == "cultivate":
-                self.current_page = View.Pages.cultivate_page(self.screen)
+                self.current_page = Pages.cultivate_page(self.screen)
             
             if self.current_page is None:
                 break

@@ -32,7 +32,7 @@ allMoves = {
 
 strategies = {
     "attack": ["punch", "block", "dodge"],
-    "defense": ["punch", "energyblast", "Heal"],
+    "defense": ["punch", "energyblast", "heal"],
 }
 
 if __name__ == '__main__':

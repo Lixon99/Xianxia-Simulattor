@@ -1,6 +1,6 @@
 import pyinputplus as pyip
 import random
-from Model.errorHandling import errorHandling
+from errorHandling import errorHandling
 
 # Denne fil håndterer cultivation og breakthrough for Qi Refining
 class CultivationQiRefining:

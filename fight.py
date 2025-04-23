@@ -1,9 +1,8 @@
-import playerstats, playermoves
-import playerStats, playerMoves, enemy
+import playerstats, playermoves, enemy
 from errorHandling import errorHandling
 
 # Defienre spilleren og eenemy stats
-player = playerStats.PlayerStats(10, 5, 4, 10)
+player = playerstats.PlayerStats(10, 5, 4, 10)
 print(player)
 
 enemy = enemy.EnemyAI('Qi Cultivator',
@@ -13,10 +12,27 @@ enemy = enemy.EnemyAI('Qi Cultivator',
                       )
 print(enemy)
 
+class Character:
+    def __init__(self, name, hp, attack):
+        self.name = name
+        self.hp = hp
+        self.attack = attack
+
+    def attack_enemy(self, target):
+        damage = self.attack
+        target.hp = max(target.hp - damage, 0)
+        return damage
+
+class Player(Character):
+    pass
+
+class Enemy(Character):
+    pass
+
 # Kamp function
 @errorHandling
 def fight(player, enemy):
-    playerMove = playerMoves.PlayerMoves(playerMoves.playerAllMoves)
+    playerMove = playermoves.PlayerMoves(playermoves.playerAllMoves)
 
     while player.health > 0 and enemy.stats['Health'] > 0:
         # Spilleren vælger et træk

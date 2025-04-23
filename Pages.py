@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 from qirefining import CultivationQiRefining
+from fight import Player, Enemy
 
 
 def main_page(screen):
@@ -65,15 +66,52 @@ def game_page(screen):
                 if CultivateButtonPos.collidepoint(event.pos):
                     return "cultivate"
 
+from fight import Player, Enemy
+
+from fight import Player, Enemy
+from playermoves import playerAllMoves
+import pygame
+
 def fight_page(screen):
     FightBackground = pygame.image.load('FightPage.png')
     BackButton = pygame.image.load('BackButton.png')
-    
     BackButtonPos = BackButton.get_rect(center=(1220, 35))
+    
+    font = pygame.font.Font(None, 32)
+    title_font = pygame.font.Font(None, 48)
+
+    player = Player("Player", 30, 5)
+    enemy = Enemy("Enemy", 20, 3)
+    selected_move = None
+    message = ""
+
+    # Lav knapper for hver move
+    move_buttons = []
+    for i, move_name in enumerate(playerAllMoves.keys()):
+        rect = pygame.Rect(50, 400 + i * 60, 200, 50)
+        move_buttons.append((rect, move_name))
+
+    clock = pygame.time.Clock()
 
     while True:
         screen.blit(FightBackground, (0, 0))
         screen.blit(BackButton, BackButtonPos)
+
+        #viser health points
+        player_hp_text = title_font.render(f"{player.name} HP: {player.hp}", True, (255, 255, 255))
+        enemy_hp_text = title_font.render(f"{enemy.name} HP: {enemy.hp}", True, (255, 255, 255))
+        screen.blit(player_hp_text, (50, 50))
+        screen.blit(enemy_hp_text, (900, 50))
+
+        if message:
+            msg_text = font.render(message, True, (255, 255, 0))
+            screen.blit(msg_text, (50, 300))
+
+        for rect, move_name in move_buttons:
+            pygame.draw.rect(screen, (70, 70, 70), rect)
+            move_text = font.render(move_name.capitalize(), True, (255, 255, 255))
+            screen.blit(move_text, (rect.x + 10, rect.y + 10))
+
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -83,6 +121,30 @@ def fight_page(screen):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if BackButtonPos.collidepoint(event.pos):
                     return "game"
+                for rect, move_name in move_buttons:
+                    if rect.collidepoint(event.pos):
+                        move = playerAllMoves[move_name]
+                        if "damage" in move:
+                            damage = move["damage"]
+                            enemy.hp = max(enemy.hp - damage, 0)
+                            message = f"You used {move_name.capitalize()} and dealt {damage} damage!"
+                        elif "healAmount" in move:
+                            heal = move["healAmount"]
+                            player.hp += heal
+                            message = f"You used Heal and recovered {heal} HP!"
+                        elif "defenseBonus" in move:
+                            message = f"You used Block. Defense increased for next turn!" 
+                        
+                        # enemy angriber
+                        if enemy.hp > 0:
+                            enemy_damage = enemy.attack
+                            player.hp = max(player.hp - enemy_damage, 0)
+                            message += f" Enemy attacked and dealt {enemy_damage} damage!"
+        
+        clock.tick(60)
+
+
+
 
 def cultivate_page(screen):
     player = CultivationQiRefining()
