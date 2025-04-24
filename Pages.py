@@ -8,9 +8,9 @@ from playermoves import playerAllMoves
 
 
 def main_page(screen):
-    backgroundPicture = pygame.image.load('Forside.jpg')
-    StartButton = pygame.image.load('StartButton.png')
-    QuitButton = pygame.image.load('Quit.png')
+    backgroundPicture = pygame.image.load('Xianxia-Simulattor-Gab/Forside.jpg')
+    StartButton = pygame.image.load('Xianxia-Simulattor-Gab/StartButton.png')
+    QuitButton = pygame.image.load('Xianxia-Simulattor-Gab/Quit.png')
 
     StartButtonPos = StartButton.get_rect(center=(640, 500))
     QuitButtonPos = QuitButton.get_rect(center=(640, 600))
@@ -181,10 +181,9 @@ def fight_page(screen, cultivation=None):
                 
                 for button in move_buttons:
                     if button["rect"].collidepoint(event.pos):
-                        # Deaktiver move hvis brugt op
                         if (button["name"] == "energyblast" and energy_blast_uses >= max_energy_blast_uses) or \
                            (button["name"] == "heal" and heal_used):
-                            message = f"You can't use {button['name'].capitalize()} anymore this fight!"
+                            message = f"You can't use {button['name'].capitalize()} anymore this fight!" # Deaktiver specifikke playermoves hvis de er brugt op
                             continue
                         
                         # players tur
@@ -221,7 +220,7 @@ def fight_page(screen, cultivation=None):
                         elif button["name"] == "heal":
                             heal_amount = 5
                             player.hp += heal_amount
-                            heal_used = True  # Marker heal som brugt
+                            heal_used = True  # Markerer heal som brugt
                             message = f"You healed for {heal_amount} HP!"
                         
                         # Enemys tur (hvis ikke stunned og stadig i live)
@@ -236,7 +235,7 @@ def fight_page(screen, cultivation=None):
                             else:
                                 if enemy_move["name"] == "punch":
                                     damage = enemy_move["damage"]
-                                    last_enemy_attack = "punch"  # Gem angrebstype
+                                    last_enemy_attack = "punch"  # Gemmer angreb til defeat page, hvis man dør
                                     if button["name"] == "block":
                                         enemy_stunned = True
                                         message += " You blocked enemy's punch and stunned them!"
@@ -246,7 +245,7 @@ def fight_page(screen, cultivation=None):
                                 
                                 elif enemy_move["name"] == "slash":
                                     damage = enemy_move["damage"]
-                                    last_enemy_attack = "slash"  # Gem angrebstype
+                                    last_enemy_attack = "slash"  # Gemmer angreb til defeat page, hvis man dør
                                     if button["name"] == "block":
                                         damage = int(damage * 1.5)
                                         message += f" Enemy slashed through your block for {damage} damage!"
