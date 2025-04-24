@@ -20,6 +20,10 @@ class Controller:
                 self.current_page = Pages.fight_page(self.screen)
             elif self.current_page == "cultivate":
                 self.current_page = Pages.cultivate_page(self.screen)
+            elif self.current_page == "defeat":
+                self.current_page = Pages.defeat_page(self.screen)
+                if self.current_page == "quit":
+                    break
             
             if self.current_page is None:
                 break

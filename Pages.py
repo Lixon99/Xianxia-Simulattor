@@ -1,7 +1,10 @@
 import pygame
+import random
 from pygame.locals import *
 from qirefining import CultivationQiRefining
 from fight import Player, Enemy
+from enemy import EnemyAI
+from playermoves import playerAllMoves
 
 
 def main_page(screen):
@@ -66,11 +69,7 @@ def game_page(screen):
                 if CultivateButtonPos.collidepoint(event.pos):
                     return "cultivate"
 
-from fight import Player, Enemy
 
-from fight import Player, Enemy
-from playermoves import playerAllMoves
-import pygame
 
 def fight_page(screen):
     FightBackground = pygame.image.load('FightPage.png')
@@ -80,16 +79,24 @@ def fight_page(screen):
     font = pygame.font.Font(None, 32)
     title_font = pygame.font.Font(None, 48)
 
+    # starting stat
     player = Player("Player", 30, 5)
     enemy = Enemy("Enemy", 20, 3)
-    selected_move = None
+    
     message = ""
+    player_stunned = False
+    enemy_stunned = False
+    energy_blast_uses = 0
+    max_energy_blast_uses = 2
+    game_over = False
 
-    # Lav knapper for hver move
-    move_buttons = []
-    for i, move_name in enumerate(playerAllMoves.keys()):
-        rect = pygame.Rect(50, 400 + i * 60, 200, 50)
-        move_buttons.append((rect, move_name))
+    # playermove buttons
+    move_buttons = [
+        {"rect": pygame.Rect(50, 400, 200, 50), "name": "punch", "label": "Punch"},
+        {"rect": pygame.Rect(50, 460, 200, 50), "name": "block", "label": "Block"},
+        {"rect": pygame.Rect(50, 520, 200, 50), "name": "energyblast", "label": f"Energy Blast ({max_energy_blast_uses-energy_blast_uses} left)"},
+        {"rect": pygame.Rect(50, 580, 200, 50), "name": "heal", "label": "Heal"}
+    ]
 
     clock = pygame.time.Clock()
 
@@ -97,20 +104,24 @@ def fight_page(screen):
         screen.blit(FightBackground, (0, 0))
         screen.blit(BackButton, BackButtonPos)
 
-        #viser health points
+        # hp
         player_hp_text = title_font.render(f"{player.name} HP: {player.hp}", True, (255, 255, 255))
-        enemy_hp_text = title_font.render(f"{enemy.name} HP: {enemy.hp}", True, (255, 255, 255))
+        enemy_hp_text = title_font.render(f"{enemy.name} HP: {enemy.stats['Health']}", True, (255, 255, 255))
         screen.blit(player_hp_text, (50, 50))
         screen.blit(enemy_hp_text, (900, 50))
 
+        #viser fight narration
         if message:
             msg_text = font.render(message, True, (255, 255, 0))
             screen.blit(msg_text, (50, 300))
 
-        for rect, move_name in move_buttons:
-            pygame.draw.rect(screen, (70, 70, 70), rect)
-            move_text = font.render(move_name.capitalize(), True, (255, 255, 255))
-            screen.blit(move_text, (rect.x + 10, rect.y + 10))
+        #playermove buttons
+        for button in move_buttons:
+            color = (100, 100, 100) if (button["name"] == "energyblast" and energy_blast_uses >= max_energy_blast_uses) else (70, 70, 70)
+            pygame.draw.rect(screen, color, button["rect"])
+            label = button["label"].replace(f"({max_energy_blast_uses-energy_blast_uses} left)", f"({max_energy_blast_uses-energy_blast_uses} left)") if "Energy Blast" in button["label"] else button["label"]
+            move_text = font.render(label, True, (255, 255, 255))
+            screen.blit(move_text, (button["rect"].x + 10, button["rect"].y + 10))
 
         pygame.display.flip()
 
@@ -121,29 +132,132 @@ def fight_page(screen):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if BackButtonPos.collidepoint(event.pos):
                     return "game"
-                for rect, move_name in move_buttons:
-                    if rect.collidepoint(event.pos):
-                        move = playerAllMoves[move_name]
-                        if "damage" in move:
-                            damage = move["damage"]
-                            enemy.hp = max(enemy.hp - damage, 0)
-                            message = f"You used {move_name.capitalize()} and dealt {damage} damage!"
-                        elif "healAmount" in move:
-                            heal = move["healAmount"]
-                            player.hp += heal
-                            message = f"You used Heal and recovered {heal} HP!"
-                        elif "defenseBonus" in move:
-                            message = f"You used Block. Defense increased for next turn!" 
+                
+                if game_over:
+                    continue
+                
+                if player_stunned:
+                    message = "You are stunned and can't move this turn!"
+                    player_stunned = False
+                    continue
+                
+                for button in move_buttons:
+                    if button["rect"].collidepoint(event.pos):
+                        # Deaktiver Energy Blast hvis brugt op
+                        if button["name"] == "energyblast" and energy_blast_uses >= max_energy_blast_uses:
+                            message = "You can't use Energy Blast anymore this fight!"
+                            continue
                         
-                        # enemy angriber
-                        if enemy.hp > 0:
-                            enemy_damage = enemy.attack
-                            player.hp = max(player.hp - enemy_damage, 0)
-                            message += f" Enemy attacked and dealt {enemy_damage} damage!"
+                        # players tur
+                        if button["name"] == "punch":
+                            enemy_move = enemy.chooseMove()
+                            if enemy_move and enemy_move.get("name") == "dodge":
+                                message = "Enemy dodged your punch!"
+                            else:
+                                if enemy_move and enemy_move.get("name") == "block":
+                                    player_stunned = True
+                                    message = "Enemy blocked your punch and stunned you!"
+                                else:
+                                    damage = 3
+                                    enemy.stats['Health'] = max(enemy.stats['Health'] - damage, 0)
+                                    message = f"You punched for {damage} damage!"
+                        
+                        elif button["name"] == "energyblast":
+                            energy_blast_uses += 1
+                            enemy_move = enemy.chooseMove()
+                            damage = 8
+                            if enemy_move and enemy_move.get("name") == "dodge":
+                                message = "Enemy dodged your energy blast!"
+                            else:
+                                if enemy_move and enemy_move.get("name") == "block":
+                                    damage = int(damage * 1.5)
+                                    message = f"Enemy blocked but took 1.5x damage! Dealt {damage} damage!"
+                                else:
+                                    message = f"You used Energy Blast for {damage} damage!"
+                                enemy.stats['Health'] = max(enemy.stats['Health'] - damage, 0)
+                        
+                        elif button["name"] == "block":
+                            message = "You prepared to block!"
+                        
+                        elif button["name"] == "heal":
+                            heal_amount = 5
+                            player.hp += heal_amount
+                            message = f"You healed for {heal_amount} HP!"
+                        
+                        # Enemys tur (hvis ikke stunned og stadig i live)
+                        if not enemy_stunned and enemy.stats['Health'] > 0:
+                            enemy_move = enemy.chooseMove()
+                            
+                            if enemy_move is None:
+                                message += " Enemy is stunned!"
+                                enemy_stunned = False
+                            elif enemy_move.get("name") == "dodge":
+                                message += " Enemy dodged!"
+                            else:
+                                if enemy_move["name"] == "punch":
+                                    damage = enemy_move["damage"]
+                                    if button["name"] == "block":
+                                        enemy_stunned = True
+                                        message += " You blocked enemy's punch and stunned them!"
+                                    else:
+                                        player.hp = max(player.hp - damage, 0)
+                                        message += f" Enemy punched for {damage} damage!"
+                                
+                                elif enemy_move["name"] == "slash":
+                                    damage = enemy_move["damage"]
+                                    if button["name"] == "block":
+                                        damage = int(damage * 1.5)
+                                        message += f" Enemy slashed through your block for {damage} damage!"
+                                    else:
+                                        message += f" Enemy slashed for {damage} damage!"
+                                    player.hp = max(player.hp - damage, 0)
+                                
+                                elif enemy_move["name"] == "block":
+                                    message += " Enemy is blocking!"
+                        
+                        # tjek om fight er slut
+                        if enemy.stats['Health'] <= 0:
+                            message = "You defeated the enemy!"
+                            game_over = True
+                        elif player.hp <= 0:
+                            message = "You were defeated!"
+                            game_over = True
+                        
+                        # opdaterer hvor mange energy blast du har tilbage
+                        for btn in move_buttons:
+                            if btn["name"] == "energyblast":
+                                btn["label"] = f"Energy Blast ({max_energy_blast_uses-energy_blast_uses} left)"
         
         clock.tick(60)
 
 
+def defeat_page(screen):
+    background = pygame.Surface((1280, 720))
+    background.fill((50, 0, 0))  # Mørkerød baggrund
+    
+    title_font = pygame.font.Font(None, 72)
+    message_font = pygame.font.Font(None, 48)
+    
+    title_text = title_font.render("DEFEAT", True, (255, 255, 255))
+    message_text = message_font.render("You succumbed to the ravages of time", True, (255, 255, 255))
+    
+    QuitButton = pygame.image.load('Quit.png')
+    QuitButtonPos = QuitButton.get_rect(center=(640, 400))
+    
+    while True:
+        screen.blit(background, (0, 0))
+        screen.blit(title_text, (640 - title_text.get_width()//2, 150))
+        screen.blit(message_text, (640 - message_text.get_width()//2, 250))
+        screen.blit(QuitButton, QuitButtonPos)
+        
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if QuitButtonPos.collidepoint(event.pos):
+                    return "quit"  # Eller None hvis du vil lukke spillet
 
 
 def cultivate_page(screen):
@@ -151,142 +265,113 @@ def cultivate_page(screen):
     background = pygame.Surface((1280, 720))
     background.fill((0, 100, 0))
     
-    # Font
+    # Fonts
     title_font = pygame.font.Font(None, 72)
     info_font = pygame.font.Font(None, 36)
     button_font = pygame.font.Font(None, 32)
     message_font = pygame.font.Font(None, 28)
-    input_font = pygame.font.Font(None, 32)
     
+    # UI Elementer
     title_text = title_font.render("Cultivation Page", True, (255, 255, 255))
-    title_pos = title_text.get_rect(center=(640, 50))
-    
     BackButton = pygame.image.load('BackButton.png')
     BackButtonPos = BackButton.get_rect(center=(1220, 35))
     
-    # Buttons
-    CultivateButton = pygame.Rect(540, 400, 200, 50)
-    BreakthroughButton = pygame.Rect(540, 470, 200, 50)
-    
-    # Input box
+    # Input boks
     input_box = pygame.Rect(540, 330, 200, 32)
-    input_color_inactive = pygame.Color('lightskyblue3')
-    input_color_active = pygame.Color('dodgerblue2')
-    input_color = input_color_inactive
-    input_active = False
+    input_color = pygame.Color('lightskyblue3')
     input_text = '1'
+    input_active = False
     
-    # Age tracking
-    age = 16  # Starting age
-    
-    # Messages
-    messages = []
+    # Beskeder
+    message = ""
     message_cooldown = 0
     
     while True:
-        if message_cooldown > 0:
-            message_cooldown -= 1
-        else:
-            messages = []
-        
-        # Current status - FIXED: Now shows current stage's requirement
-        stage_text = info_font.render(f"Stage: Qi Refining {player.stage}/5", True, (255, 255, 255))
-        exp_text = info_font.render(
-            f"Exp: {int(player.currentCultivationexp)}/{player.requiredExp.get(player.stage, 0)}", 
-            True, 
-            (255, 255, 255)
-        )
-        age_text = info_font.render(f"Age: {age} years", True, (255, 255, 255))
-        
         screen.blit(background, (0, 0))
-        screen.blit(title_text, title_pos)
+        screen.blit(title_text, (640 - title_text.get_width()//2, 50))
+        screen.blit(BackButton, BackButtonPos)
+        
+        # Vis status
+        stage_text = info_font.render(f"Stage: Qi Refining {player.stage}/5", True, (255, 255, 255))
+        exp_text = info_font.render(f"Exp: {int(player.currentCultivationexp)}/{player.requiredExp.get(player.stage, 0)}", True, (255, 255, 255))
+        age_text = info_font.render(f"Age: {player.age} years (Max: {player.max_age[player.stage] if player.stage < 5 else 'Immortal'})", True, (255, 255, 255))
+        
         screen.blit(stage_text, (50, 150))
         screen.blit(exp_text, (50, 200))
         screen.blit(age_text, (50, 250))
-        screen.blit(BackButton, BackButtonPos)
         
-        # Draw input box
+        # Vis besked
+        if message and message_cooldown > 0:
+            msg_lines = message.split('\n')
+            for i, line in enumerate(msg_lines):
+                msg_surface = message_font.render(line, True, (255, 255, 0))
+                screen.blit(msg_surface, (50, 350 + i * 30))
+            message_cooldown -= 1
+        
+        # Input boks
         pygame.draw.rect(screen, input_color, input_box, 2)
-        input_surface = input_font.render(input_text, True, (255, 255, 255))
-        screen.blit(input_surface, (input_box.x + 5, input_box.y + 5))
+        txt_surface = button_font.render(input_text, True, (255, 255, 255))
+        screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
         
-        # Label for input box
-        input_label = info_font.render("Years to cultivate:", True, (255, 255, 255))
-        screen.blit(input_label, (input_box.x, input_box.y - 30))
-        
-        # Buttons
-        pygame.draw.rect(screen, (70, 70, 70), CultivateButton)
-        pygame.draw.rect(screen, (70, 70, 70), BreakthroughButton)
+        # Knapper
+        cultivate_button = pygame.Rect(540, 400, 200, 50)
+        breakthrough_button = pygame.Rect(540, 470, 200, 50)
+        pygame.draw.rect(screen, (70, 70, 70), cultivate_button)
+        pygame.draw.rect(screen, (70, 70, 70), breakthrough_button)
         
         cultivate_text = button_font.render("Cultivate", True, (255, 255, 255))
-        breakthrough_text = button_font.render("Attempt Breakthrough", True, (255, 255, 255))
-        
-        screen.blit(cultivate_text, (CultivateButton.x + 50, CultivateButton.y + 15))
-        screen.blit(breakthrough_text, (BreakthroughButton.x + 10, BreakthroughButton.y + 15))
-        
-        # Messages
-        for i, message in enumerate(messages):
-            msg_text = message_font.render(message, True, (255, 255, 0))
-            screen.blit(msg_text, (50, 300 + i * 30))
+        breakthrough_text = button_font.render("Breakthrough", True, (255, 255, 255))
+        screen.blit(cultivate_text, (cultivate_button.x + 50, cultivate_button.y + 15))
+        screen.blit(breakthrough_text, (breakthrough_button.x + 20, breakthrough_button.y + 15))
         
         pygame.display.flip()
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
                 return None
                 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # Toggle input box active state
-                if input_box.collidepoint(event.pos):
-                    input_active = True
-                    input_color = input_color_active
-                else:
-                    input_active = False
-                    input_color = input_color_inactive
-                    
                 if BackButtonPos.collidepoint(event.pos):
                     return "game"
                     
-                if CultivateButton.collidepoint(event.pos):
+                if input_box.collidepoint(event.pos):
+                    input_active = True
+                else:
+                    input_active = False
+                    
+                if cultivate_button.collidepoint(event.pos):
                     try:
                         years = int(input_text)
                         if years > 0:
-                            player.cultivate(years)
-                            age += years
-                            messages = [f"You cultivated for {years} years and gained experience!", f"Your age is now {age}"]
-                            message_cooldown = 180
-                        else:
-                            messages = ["Please enter a positive number of years"]
+                            result = player.cultivate(years)
+                            if result == "died":
+                                return "defeat"
+                            message = f"Cultivated for {years} years.\nGained {years} experience."
                             message_cooldown = 120
                     except ValueError:
-                        messages = ["Please enter a valid number"]
+                        message = "Please enter a valid number"
+                        message_cooldown = 60
+                        
+                if breakthrough_button.collidepoint(event.pos):
+                    result = player.breakthroughRealmStage()
+                    if result is True:
+                        message = f"Breakthrough successful!\nReached stage {player.stage}!"
                         message_cooldown = 120
-                        
-                if BreakthroughButton.collidepoint(event.pos):
-                    if player.cultivationexp >= player.requiredExp[player.stage]:
-                        old_stage = player.stage
-                        old_exp = player.cultivationexp
-                        player.breakthroughRealmStage()
-                        
-                        # FIXED: Immediately update display after breakthrough
-                        if player.stage > old_stage:
-                            messages = ["Breakthrough successful! You reached a new stage!"]
+                    elif result is False:
+                        if "failed_lost" in player.last_breakthrough_result:
+                            lost_exp = player.last_breakthrough_result.split('_')[-2]
+                            message = f"Breakthrough failed!\nLost {lost_exp} experience."
                         else:
-                            messages = [f"Breakthrough failed! Lost {old_exp} experience."]
+                            message = "Breakthrough failed!"
                         message_cooldown = 120
                     else:
-                        messages = [f"Not enough experience for breakthrough! Need {player.requiredExp[player.stage]}."]
-                        message_cooldown = 120
-                        
+                        message = f"Not enough experience for breakthrough!\nNeed {player.requiredExp[player.stage]}."
+                        message_cooldown = 60
+            
             if event.type == pygame.KEYDOWN and input_active:
                 if event.key == pygame.K_RETURN:
                     input_active = False
-                    input_color = input_color_inactive
                 elif event.key == pygame.K_BACKSPACE:
                     input_text = input_text[:-1]
-                else:
-                    if event.unicode.isdigit():
-                        input_text += event.unicode
-        
-        pygame.time.Clock().tick(60)
+                elif event.unicode.isdigit():
+                    input_text += event.unicode

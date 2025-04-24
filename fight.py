@@ -1,16 +1,6 @@
-import playerstats, playermoves, enemy
+import random
+from enemy import EnemyAI
 from errorHandling import errorHandling
-
-# Defienre spilleren og eenemy stats
-player = playerstats.PlayerStats(10, 5, 4, 10)
-print(player)
-
-enemy = enemy.EnemyAI('Qi Cultivator',
-                      stats={'Health': 10, 'Strength': 5, 'Defense': 4, 'Energy': 10}, 
-                      strategies=enemy.strategies, 
-                      allMoves=enemy.allMoves 
-                      )
-print(enemy)
 
 class Character:
     def __init__(self, name, hp, attack):
@@ -18,77 +8,118 @@ class Character:
         self.hp = hp
         self.attack = attack
 
-    def attack_enemy(self, target):
-        damage = self.attack
-        target.hp = max(target.hp - damage, 0)
-        return damage
-
 class Player(Character):
-    pass
+    def __init__(self, name, hp, attack):
+        super().__init__(name, hp, attack)
+        self.energy_blast_uses = 0
+        self.max_energy_blast_uses = 2
 
-class Enemy(Character):
-    pass
+class Enemy(EnemyAI):
+    def __init__(self, name, hp, attack):
+        stats = {
+            'Health': hp,
+            'Strength': attack,
+            'Defense': 2, 
+            'Energy': 15  
+        }
+        super().__init__(name, stats)
 
 # Kamp function
 @errorHandling
 def fight(player, enemy):
-    playerMove = playermoves.PlayerMoves(playermoves.playerAllMoves)
-
-    while player.health > 0 and enemy.stats['Health'] > 0:
-        # Spilleren vælger et træk
-        playerAction = playerMove.playerChooseMove()
-        match playerAction:
-            case 'punch':
-                print('---------------------- \nPlayer uses punch')
-                enemy.stats['Health'] -= player.strength
-                player.energy -= 1
-            case 'block':
-                print('---------------------- \nPlayer uses block')
-                player.defense += 2
-            case 'energyblast':
-                print('---------------------- \nPlayer uses energyblast')
-                enemy.stats['Health'] -= player.strength + (0.5 * player.strength)
-                player.energy -= 5
-            case 'heal':
-                print('---------------------- \nPlayer uses heal')
-                player.health += 5
-                player.energy -= 2
-            case _:
-                print('Invalid move. Please try again.')
-                continue
-
-        if enemy.stats['Health'] <= 0:
-            print('You win!')
-            break
+    while player.hp > 0 and enemy.stats['Health'] > 0:
+        # Spillerens tur
+        print("\nAvailable moves:")
+        print("1. Punch (3 damage)")
+        print("2. Block (defense)")
+        print(f"3. Energy Blast (8 damage) - {player.max_energy_blast_uses - player.energy_blast_uses} left")
+        print("4. Heal (5 HP)")
         
-        # AI vælger et træk4
-        aiMove = enemy.chooseMove(playerAction)
-        match aiMove['name']:
-            case 'punch':
-                print('---------------------- \nenemy uses punch')
-                player.health -= enemy.stats['Strength']
-                enemy.stats['Energy'] -= 1
-            case 'block':
-                print('---------------------- \nenemy uses block')
-                enemy.stats['Defense'] += 2
-            case 'energyblast':
-                print('---------------------- \nenemy uses energyblast')
-                enemy.stats['Health'] -= enemy.stats['Strength'] + (0.5 * enemy.stats['Strength'])
-                enemy.stats['Energy'] -= 5
-            case 'heal':
-                print('---------------------- \nenemy uses heal')
-                enemy.stats['Health'] += 5
-                enemy.stats['Energy'] -= 2
-            case _:
-                print('Invalid move. Please try again.')
-                continue
-
-        if player.health <= 0:
-            print('You lose!')
-            break
+        choice = input("Choose your move (1-4): ")
+        
+        if choice == "1":  # Punch
+            enemy_move = enemy.chooseMove()
+            if enemy_move and enemy_move.get("name") == "dodge":
+                print("Enemy dodged your punch!")
+            else:
+                if enemy_move and enemy_move.get("name") == "block":
+                    print("Enemy blocked your punch and stunned you!")
+                    # Player stunned næste tur
+                else:
+                    enemy.stats['Health'] -= 3
+                    print(f"You punched enemy for 3 damage!")
+        
+        elif choice == "2":  # Block
+            print("You prepare to block!")
+            # Block logik her
             
-        print(f'{player}')
-        print(f'{enemy}')
+        elif choice == "3":  # Energy Blast
+            if player.energy_blast_uses >= player.max_energy_blast_uses:
+                print("You can't use Energy Blast anymore this fight!")
+                continue
+                
+            enemy_move = enemy.chooseMove()
+            if enemy_move and enemy_move.get("name") == "dodge":
+                print("Enemy dodged your energy blast!")
+            else:
+                damage = 8
+                if enemy_move and enemy_move.get("name") == "block":
+                    damage = int(damage * 1.5)
+                    print(f"Enemy blocked but took 1.5x damage! Dealt {damage} damage!")
+                else:
+                    print(f"You used Energy Blast for {damage} damage!")
+                enemy.stats['Health'] -= damage
+                player.energy_blast_uses += 1
+                
+        elif choice == "4":  # Heal
+            player.hp += 5
+            print(f"You healed for 5 HP!")
+        
+        else:
+            print("Invalid choice. Try again.")
+            continue
 
-if __name__ == '__main__': 
+        # Fjendens tur (hvis ikke død)
+        if enemy.stats['Health'] > 0:
+            enemy_move = enemy.chooseMove()
+            if enemy_move is None:
+                print("Enemy is stunned and can't move!")
+            elif enemy_move.get("name") == "dodge":
+                print("Enemy dodged!")
+            else:
+                if enemy_move["name"] == "punch":
+                    damage = enemy_move["damage"]
+                    # Tjek om player blokerede
+                    if choice == "2":  # Player blokerede
+                        print("You blocked enemy's punch and stunned them!")
+                        # Enemy stunned næste tur
+                    else:
+                        player.hp -= damage
+                        print(f"Enemy punched you for {damage} damage!")
+                
+                elif enemy_move["name"] == "slash":
+                    damage = enemy_move["damage"]
+                    if choice == "2":  # Player blokerede
+                        damage = int(damage * 1.5)
+                        print(f"Enemy slashed through your block for {damage} damage!")
+                    else:
+                        print(f"Enemy slashed you for {damage} damage!")
+                    player.hp -= damage
+                
+                elif enemy_move["name"] == "block":
+                    print("Enemy is blocking!")
+
+        # Vis status
+        print(f"\nPlayer HP: {player.hp}")
+        print(f"Enemy HP: {enemy.stats['Health']}")
+
+    # Kamp resultat
+    if player.hp <= 0:
+        print("You were defeated!")
+    else:
+        print("You defeated the enemy!")
+
+if __name__ == '__main__':
+    player = Player("Player", 30, 5)
+    enemy = Enemy("Enemy", 20, 3)
     fight(player, enemy)

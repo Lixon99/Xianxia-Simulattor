@@ -3,61 +3,58 @@ import random
 from errorHandling import errorHandling
 
 # Denne fil håndterer cultivation og breakthrough for Qi Refining
+import random
+
+import random
+
+import random
+
 class CultivationQiRefining:
+    _instance = None  # Singleton pattern
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
     def __init__(self):
-        # Initialisere variablerne
-        self.cultivationexp: int = 0
-        self.currentCultivationexp: int = 0
-        self.stage: int = 1
-        self.requiredExp = {1: 100, 2: 500, 3: 1500, 4: 3000, 5: 5000}  
+        if not self._initialized:
+            self.cultivationexp = 0
+            self.currentCultivationexp = 0
+            self.stage = 1
+            self.age = 16  # Startalder
+            self.requiredExp = {1: 50, 2: 300, 3: 1000, 4: 2200, 5: 5000}
+            self.max_age = {1: 100, 2: 250, 3: 1000, 4: 2000, 5: float('inf')}
+            self._initialized = True
+            self.last_breakthrough_result = None
     
-    @errorHandling
-    def cultivate(self, n: int):
-        for _ in range(n):
-            self.cultivationexp += 1 # cultivationexp værdi er 0, så 1 eksister, så tallet kan gå rigtig op hvert iteration
+    def cultivate(self, years):
+        self.cultivationexp += years
+        self.age += years
         self.checkMultiplier()
-        return self.currentCultivationexp
-    
-    @errorHandling
-    def checkMultiplier(self):
-        match self.stage:
-            case 1:
-                self.currentCultivationexp = self.cultivationexp * 1
-            case 2:
-                self.currentCultivationexp = self.cultivationexp * 1.2
-            case 3:
-                self.currentCultivationexp = self.cultivationexp * 1.3
-            case 4:
-                self.currentCultivationexp = self.cultivationexp * 1.5
-            case 5:
-                self.currentCultivationexp = self.cultivationexp * 1.6
-        return self.currentCultivationexp
-
-    @errorHandling       
-    def breakthroughRealmStage(self):
-        if self.cultivationexp >= self.requiredExp[self.stage]: # Henter værdi fra requiredexp dict
-            checkChance = random.randint(0, 1)
-            if checkChance == 1:
-                print('Breakthrough Sucess!')
-                self.stage += 1
-                self.cultivationexp = 0
-            else:
-                print('BreakThrough Failed!')
-                self.cultivationexp = 0
-
-if __name__ == '__main__':
-    player = CultivationQiRefining() 
-
-    while player.stage <= 5:
-        while player.cultivationexp < player.requiredExp[player.stage]:
-            cultivation: int = pyip.inputInt('Enter how long you would like to cultivatet for (Years): ')
-            print(f'Not enough cultivations exp to try and breakthrough to Stage: {player.stage + 1}')
-            player.cultivate(cultivation)
-            print(f'Current cultivators exp: {player.currentCultivationexp}')
         
-        player.breakthroughRealmStage()
-        print(f'Players realm: {player.stage}')
-
-        if player.stage > 5:
-            print('You have reached the maximum stage for Qi Refining')
-            break
+        if self.age > self.max_age[self.stage]:
+            return "died"
+        return "success"
+    
+    def checkMultiplier(self):
+        multipliers = {1: 1.0, 2: 1.2, 3: 1.3, 4: 1.5, 5: 1.6}
+        self.currentCultivationexp = self.cultivationexp * multipliers.get(self.stage, 1.0)
+    
+    def breakthroughRealmStage(self):
+        if self.currentCultivationexp >= self.requiredExp[self.stage]:
+            if random.random() < 0.7:  # 70% success chance
+                self.stage = min(self.stage + 1, 5)
+                self.cultivationexp = 0
+                self.last_breakthrough_result = "success"
+                return True
+            else:
+                # Mist 25% af XP for nuværende stage
+                lost_exp = int(self.requiredExp[self.stage] * 0.25)
+                self.cultivationexp = max(0, self.cultivationexp - lost_exp)
+                self.checkMultiplier()
+                self.last_breakthrough_result = f"failed_lost_{lost_exp}_exp"
+                return False
+        self.last_breakthrough_result = "not_enough_exp"
+        return None
