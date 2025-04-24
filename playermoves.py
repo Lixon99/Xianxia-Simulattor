@@ -21,7 +21,7 @@ class PlayerMoves:
     def __str__(self):
         return f'Player moves: {self.playerAllMoves}'
 
-# Dette er alle spillerens træk
+# players moves
 playerAllMoves = {
     "punch": {"name": "punch", "damage": 3, "energyCost": 1}, 
     "block": {"name": "block", "defenseBonus": 2, "energyCost": 1}, 

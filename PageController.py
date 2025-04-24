@@ -1,9 +1,12 @@
 import pygame
 import Pages
+from qirefining import CultivationQiRefining
 
 class Controller:
     def __init__(self):
         self.current_page = "main"
+        self.cultivation = CultivationQiRefining()
+        self.death_info = None  # Initialiserer death_info
     
     def run(self):
         pygame.init()
@@ -12,21 +15,26 @@ class Controller:
         self.clock = pygame.time.Clock()
 
         while True:
+            result = None
             if self.current_page == "main":
-                self.current_page = Pages.main_page(self.screen)
+                result = Pages.main_page(self.screen)
             elif self.current_page == "game":
-                self.current_page = Pages.game_page(self.screen)
+                result = Pages.game_page(self.screen, self.cultivation)
             elif self.current_page == "fight":
-                self.current_page = Pages.fight_page(self.screen)
+                result = Pages.fight_page(self.screen, self.cultivation)
             elif self.current_page == "cultivate":
-                self.current_page = Pages.cultivate_page(self.screen)
+                result = Pages.cultivate_page(self.screen, self.cultivation)
             elif self.current_page == "defeat":
-                self.current_page = Pages.defeat_page(self.screen)
-                if self.current_page == "quit":
-                    break
+                result = Pages.defeat_page(self.screen, self.death_info)
             
-            if self.current_page is None:
+            if isinstance(result, list) and result[0] == "defeat":
+                self.current_page = "defeat"
+                self.death_info = result
+            elif result is None:
                 break
+            else:
+                self.current_page = result
+                self.death_info = None  # Nulstil death_info når vi skifter side
                 
             self.clock.tick(60)
             
