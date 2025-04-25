@@ -5,12 +5,12 @@ from qirefining import CultivationQiRefining
 from fight import Player, Enemy
 from enemy import EnemyAI
 from playermoves import playerAllMoves
-
+import os
 
 def main_page(screen):
-    backgroundPicture = pygame.image.load('Xianxia-Simulattor-Gab/Forside.jpg')
-    StartButton = pygame.image.load('Xianxia-Simulattor-Gab/StartButton.png')
-    QuitButton = pygame.image.load('Xianxia-Simulattor-Gab/Quit.png')
+    backgroundPicture = pygame.image.load(os.path.join(os.path.dirname(__file__), 'Forside.jpg'))
+    StartButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'StartButton.png'))
+    QuitButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'Quit.png'))
 
     StartButtonPos = StartButton.get_rect(center=(640, 500))
     QuitButtonPos = QuitButton.get_rect(center=(640, 600))
@@ -36,11 +36,11 @@ def game_page(screen, cultivation=None):
     if cultivation is None:
         cultivation = CultivationQiRefining()
     
-    gameBackground = pygame.image.load('GamePage.png')
-    FightButton = pygame.image.load('FightButton.png')
-    CultivationIMG = pygame.image.load('meditateImg.png')
-    CultivateButton = pygame.image.load('CultivateButton.png')
-    BackButton = pygame.image.load('BackButton.png')
+    gameBackground = pygame.image.load(os.path.join(os.path.dirname(__file__), 'GamePage.png'))
+    FightButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'FightButton.png'))
+    CultivationIMG = pygame.image.load(os.path.join(os.path.dirname(__file__), 'meditateImg.png'))
+    CultivateButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'CultivateButton.png'))
+    BackButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'BackButton.png'))
 
     CultivationIMGPos = CultivationIMG.get_rect(center=(240, 340))
     CultivateButtonPos = CultivateButton.get_rect(center=(244, 550))
@@ -90,8 +90,8 @@ def fight_page(screen, cultivation=None):
     if cultivation is None:
         cultivation = CultivationQiRefining()
     
-    FightBackground = pygame.image.load('FightPage.png')
-    BackButton = pygame.image.load('BackButton.png')
+    FightBackground = pygame.image.load(os.path.join(os.path.dirname(__file__), 'FightPage.png'))
+    BackButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'BackButton.png'))
     BackButtonPos = BackButton.get_rect(center=(1220, 35))
     
     font = pygame.font.Font(None, 32)
@@ -291,7 +291,7 @@ def defeat_page(screen, death_info=None):
     message_text = message_font.render(death_message, True, (255, 255, 255))
     sub_text = sub_font.render("Your cultivation journey ends here", True, (200, 200, 200))
     
-    QuitButton = pygame.image.load('Quit.png')
+    QuitButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'Quit.png'))
     QuitButtonPos = QuitButton.get_rect(center=(640, 400))
     
     while True:
@@ -319,7 +319,7 @@ def cultivate_page(screen, cultivation=None):
     SHORT_MESSAGE_COOLDOWN = int(FPS * 1)  # 1 sekund
     LONG_MESSAGE_COOLDOWN = int(FPS * 2)   # 2 sekunder
     
-    background = pygame.image.load("CultivatePageIMG.jpg")
+    background = pygame.image.load(os.path.join(os.path.dirname(__file__), 'CultivatePageIMG.jpg'))
     background = pygame.transform.scale(background, (1280, 720))
     breakthrough_chances = {1: 95, 2: 80, 3: 70, 4: 60, 5: 50}
     current_chance = breakthrough_chances.get(cultivation.stage, 50)
@@ -331,7 +331,7 @@ def cultivate_page(screen, cultivation=None):
     small_font = pygame.font.Font(None, 24)
     
     title_text = title_font.render("Cultivation Page", True, (255, 255, 255))
-    BackButton = pygame.image.load('BackButton.png')
+    BackButton = pygame.image.load(os.path.join(os.path.dirname(__file__), 'BackButton.png'))
     BackButtonPos = BackButton.get_rect(center=(1220, 35))
     
     input_box = pygame.Rect(540, 330, 200, 32)
